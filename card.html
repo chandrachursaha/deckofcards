@@ -1,0 +1,182 @@
+<style>
+html {
+      background-color:#0E0E0E;
+  }
+
+  body {
+      font-family:helvetica, ariel, san-serif;
+      font-size:16px;
+      margin:0;
+      padding:0;
+  }
+
+  .actions {
+      border-bottom:3px solid #686868;
+      margin-bottom:20px;
+      padding:0.6em 0.7em;
+  }
+
+  .actions a, .actions a:active, .actions a:visited, .actions a:hover {
+      text-decoration:none;
+      color:#686868;
+      background-color:#292929;
+      padding:0.3em 0.7em;
+      margin-right:10px;
+      cursor:default;
+      border-radius:5px;
+      -moz-border-radius:5px;
+      -webkit-border-radius:5px;
+  }
+
+  .actions a.enabled {
+      color:#ffffff;
+      cursor:pointer;
+  }
+
+  .card {
+      width:100px;
+      border:1px solid #000000;
+      background-color:#ffffff;
+      padding:10px;
+      border-radius:8px;
+      -moz-border-radius:8px;
+      -webkit-border-radius:8px;
+      -moz-box-shadow:-1px 0 5px #000000;
+      -webkit-box-shadow:-1px 0 5px #000000;
+      float:left;
+      margin:0 -131px 20px 10px;
+  }
+
+  .clubs, .spades {
+      color:#333333;
+  }
+
+  .hearts, .diams {
+      color:#8A1213;
+  }
+
+  .card .suit {
+      text-align:center;
+      font-size:50px;
+      height:70px;
+      line-height:70px;
+  }
+
+  .card .bottom_suit {
+      text-align:right;
+  }
+
+  .card .bottom_rank {
+      text-align:right;
+  }
+
+  #cards {
+      margin-right:110px
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"> </script>
+<html>
+	<div class="actions">
+		<a id="new_deck" class="enabled" href="">New Deck</a>
+		<a id="shuffle_deck" href="">Shuffle</a>
+		<a id="top_card_deck" href="">Draw the Card</a>
+	</div>
+	<div id="cards"></div>
+</html>
+
+<script>
+function deck() {
+
+      function card(r,s) {
+          this.rank = r;
+          this.suit = s;
+      }
+
+      this.order = [
+      new card('A','spades'), new card('2','spades'), new card('3','spades'), new card('4','spades'), new card('5','spades'),
+      new card('6','spades'), new card('7','spades'), new card('8','spades'), new card('9','spades'), new card('10','spades'),
+      new card('J','spades'), new card('Q','spades'), new card('K','spades'),
+      new card('A','clubs'), new card('2','clubs'), new card('3','clubs'), new card('4','clubs'), new card('5','clubs'),
+      new card('6','clubs'), new card('7','clubs'), new card('8','clubs'), new card('9','clubs'), new card('10','clubs'),
+      new card('J','clubs'), new card('Q','clubs'), new card('K','clubs'),
+      new card('A','hearts'), new card('2','hearts'), new card('3','hearts'), new card('4','hearts'), new card('5','hearts'),
+      new card('6','hearts'), new card('7','hearts'), new card('8','hearts'), new card('9','hearts'), new card('10','hearts'),
+      new card('J','hearts'), new card('Q','hearts'), new card('K','hearts'),
+      new card('A','diams'), new card('2','diams'), new card('3','diams'), new card('4','diams'), new card('5','diams'),
+      new card('6','diams'), new card('7','diams'), new card('8','diams'), new card('9','diams'), new card('10','diams'),
+      new card('J','diams'), new card('Q','diams'), new card('K','diams')
+      ];
+
+      this.shuffle = function() {
+          for (var i = 0; i < this.order.length; i++) {
+              var j = i;
+              while (j==i) {
+                  j = Math.floor(Math.random() * this.order.length);
+              }
+              var tmp = this.order[i];
+              this.order[i] = this.order[j];
+              this.order[j] = tmp;
+          }
+      };
+
+      this.shuffle();
+
+      this.top_card = function() {
+          if(this.order.length==0)
+              return false;
+          this.order.shift();
+          return true;
+      };
+  }
+
+  $(document).ready(function(){
+                      var d;
+
+                      function cardDOM(c,m) {
+                          if(c) {
+                              return $('<div class="card ' + c.suit + '"' + (m?' style="margin-right:'+m+';"':'') + '><div class="top_rank">' + c.rank + '</div><div class="top_suit">&' + c.suit + ';</div><div class="suit">&' + c.suit + ';</div><div class="bottom_suit">&' + c.suit + ';</div><div class="bottom_rank">' + c.rank + '</div></div>');
+                          }
+                      }
+
+                      $("#new_deck").click(function(){
+                          $("#cards").html('');
+                          d = new deck();
+                          d.order;
+                          for(i=0;i<d.order.length;i++) {
+                              $('#cards').prepend(cardDOM(d.order[i]));
+                          }
+                          $("#cards .card").animate({marginRight:"-107px"},2000,"swing");
+                          $("#shuffle_deck").addClass("enabled");
+                          $("#top_card_deck").addClass("enabled");
+                          return false;
+                      });
+                      $("#shuffle_deck").click(function(){
+                          if(d) {
+                              d.shuffle();
+                              $("#cards").html('');
+                              for(i=0;i<d.order.length;i++) {
+                                  $('#cards').prepend(cardDOM(d.order[i],"-107px"));
+                              }
+                          }
+                          return false;
+                      });
+                      $("#top_card_deck").click(function(){
+                          if(d) {
+                              if(d.top_card()) {
+                                  $("#cards .card:last").css('position','relative').animate({marginTop:"100px",marginLeft:"300px"},"slow","swing",function(){
+                                      $("#cards .card:last").remove();
+                                  });
+
+                              } else {
+                                  d = null;
+                                  $("#shuffle_deck").removeClass("enabled");
+                                  $("#top_card_deck").removeClass("enabled");
+                                  if(confirm("You don't have any cards left. Would you like a new Deck?")) {
+                                      $("#new_deck").click();
+                                  }
+                              }
+                          }
+                          return false;
+                      });
+                  });
+</script>
